@@ -118,7 +118,7 @@ class LagouSpider:
         self.login_cookies = login.get_cookies()
         logger.info(self.login_cookies)
 
-    def parse(self):
+    def parse(self) -> list:
         """
         主要解析的函数
         :return:
@@ -256,7 +256,7 @@ class LagouSpider:
             logger.debug("Error---2")
             logger.error(err)
 
-    def get_company_rate(self, company_id: str, cookies=None):
+    def get_company_rate(self, company_id: str, cookies=None) -> list:
         """
         公司信息
         :param company_id:
@@ -318,7 +318,7 @@ class LagouSpider:
         return pattern.sub('', content)
 
     @staticmethod
-    def get_value(data):
+    def get_value(data) -> str:
         """
         判断是否为空
         :param data:

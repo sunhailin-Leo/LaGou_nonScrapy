@@ -32,3 +32,9 @@ pip install -r requirements.txt
 * 数据库(MongoDB、Mysql等)
 * 进度监控
 * 完善上述两点后迁移到Scrapy上.
+
+---
+
+<h3 id="Plus">补充</h3>
+
+* 项目中的lagou_login代码来自 [拉勾网的模拟登录](https://github.com/laichilueng/lagou_login)

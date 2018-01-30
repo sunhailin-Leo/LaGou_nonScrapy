@@ -2,14 +2,13 @@
 import requests
 import hashlib
 import re
-import logging
 
-# 日志基本配置
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-    datefmt='%a, %d %b %Y %H:%M:%S')
-logger = logging.getLogger()
+# 项目内部库
+from logger.LoggerHandler import Logger
+
+# 日志中心
+logger = Logger(logger='lagou_login.py').get_logger()
+
 
 # 请求对象
 session = requests.session()

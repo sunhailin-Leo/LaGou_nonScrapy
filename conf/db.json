@@ -1,0 +1,10 @@
+{
+    "MongoDB": {
+        "Enable": true,
+        "Host": "127.0.0.1",
+        "Port": 27017,
+        "Username": "",
+        "Password": "",
+        "Database": "LaGouData"
+    }
+}

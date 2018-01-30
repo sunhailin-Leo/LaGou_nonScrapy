@@ -9,6 +9,7 @@
 * Python依赖:
     * lxml
     * requests
+    * pymongo
 
 * 安装方式:
 
@@ -19,6 +20,10 @@ pip install -r requirements.txt
 ---
 
 <h3 id="TimeLine">进度</h3>
+* 2018-01-29
+    * 加入日志中心,规整了日志输出.
+    * 加入MongoDB的配置文件和连接方法
+    * 数据支持写入到MongoDB中(因时间问题不对MySQL进行支持)
 
 * 2018-01-26:
     * 实现搜索任意职位获取数据,且字段众多(字段列表见下)
@@ -29,8 +34,8 @@ pip install -r requirements.txt
 
 <h3 id="Future">未来进度</h3>
 
-* 数据库(MongoDB、Mysql等)
-* 进度监控
+* 数据库(MongoDB写入)
+* 进度监控(通过MongoDB进行监控)
 * 完善上述两点后迁移到Scrapy上.
 
 ---

@@ -1,11 +1,15 @@
-# coding:utf-8
+# -*- coding: UTF-8 -*-
+"""
+Created on 2018年1月24日
+@author: Leo
+"""
+
 
 # Python内部库
 import re
 import json
 import time
 import random
-import logging
 import requests
 from collections import OrderedDict
 
@@ -15,14 +19,10 @@ from lxml import etree
 # 项目内部库
 from spider import lagou_login as login
 from utils.UserAgentMiddleware import UserAgentRotate
+from logger.LoggerHandler import Logger
 
-
-# 日志基本配置
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-    datefmt='%a, %d %b %Y %H:%M:%S')
-logger = logging.getLogger()
+# 日志中心
+logger = Logger(logger='lagou.py').get_logger()
 
 
 class LagouSpider:
@@ -118,7 +118,7 @@ class LagouSpider:
         self.login_cookies = login.get_cookies()
         logger.info(self.login_cookies)
 
-    def parse(self) -> list:
+    def parse(self, page_start: int, page_end: int) -> list:
         """
         主要解析的函数
         :return:

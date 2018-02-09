@@ -6,9 +6,7 @@ Created on 2018年1月24日
 
 
 # Python内部库
-import re
 import json
-import time
 import random
 import requests
 from collections import OrderedDict
@@ -19,6 +17,7 @@ from lxml import etree
 # 项目内部库
 from spider import lagou_login as login
 from utils.UserAgentMiddleware import UserAgentRotate
+from utils.UtilMiddleware import *
 from logger.LoggerHandler import Logger
 
 # 日志中心
@@ -124,8 +123,6 @@ class LagouSpider:
         :return:
         """
         jobs = []
-        page_start = 1
-        page_end = 31
 
         # 一共就30页,所以就1-30页, range是1到31
         for page in range(page_start, page_end):
@@ -160,7 +157,7 @@ class LagouSpider:
                             except TypeError:
                                 job['location'] = item['city']
                             # 发布时间
-                            job['publish_date'] = item['createTime']
+                            job['publish_date'] = int(time_to_timestamp(time_str=item['createTime']))
                             # 职位类型
                             job['work_type'] = item['jobNature']
                             # 工作年限
@@ -200,13 +197,14 @@ class LagouSpider:
                             job['business_info'] = company_info[2]
 
                             # 测试
-                            print(job['business_name'])
+                            logger.info(job)
                             # 写入List中
                             jobs.append(job)
 
-                        except (IndexError, TypeError) as err:
+                        except TypeError as err:
                             logger.error(err)
                             error_list = [item['positionId'], item['companyId'], item]
+                            logger.info(dict(item))
                             self.err_list.append(error_list)
                             logger.info(error_list)
 
@@ -219,17 +217,20 @@ class LagouSpider:
                 # 有时候会弹出个页面...不知道为什么
                 logger.debug("暂停一下...")
                 time.sleep(random.uniform(2, 4))
-                self.parse()
+                # self.parse()
+        print(len(self.err_list))
+        print(self.err_list)
         return jobs
 
     def get_job_info(self, job_id: str, cookies: dict) -> str:
         """
         职位信息
-        :param job_id:
-        :param cookies:
+        :param job_id: 职位ID
+        :param cookies: cookies
         :return:
         """
         url = 'https://www.lagou.com/jobs/%s.html' % job_id
+        logger.info("职位信息: %s" % url)
         try:
             # 转换cookies
             response = requests.get(url,
@@ -244,13 +245,15 @@ class LagouSpider:
             selector = etree.HTML(html)
             info = [str(x.encode("UTF-8"), encoding="UTF-8").replace("\xa0", "")
                     for x in selector.xpath("//dd[@class='job_bt']//p/text()")]
-            info = self.get_value(info)
-            if info != '':
-                info = ''.join(info)
+            if len(info) != 0:
+                info = get_value(info)
             else:
-                self.get_job_info(job_id=job_id, cookies=self.all_cookies)
+                info = [str(x.encode("UTF-8"), encoding="UTF-8").replace("\xa0", "")
+                        for x in selector.xpath("//dd[@class='job_bt']//p/span/text()")]
+                info = get_value(info)
             return info
         except IndexError:
+            logger.error("Index Error!")
             self.get_job_info(job_id=job_id, cookies=self.all_cookies)
         except KeyError as err:
             logger.debug("Error---2")
@@ -259,12 +262,12 @@ class LagouSpider:
     def get_company_rate(self, company_id: str, cookies=None) -> list:
         """
         公司信息
-        :param company_id:
-        :param cookies:
+        :param company_id: 公司ID
+        :param cookies: cookies
         :return:
         """
         url = 'https://www.lagou.com/gongsi/%s.html' % company_id
-        # try:
+        logger.info("公司信息: %s" % url)
         # 请求
         response = requests.get(url,
                                 headers=self._headers,
@@ -291,37 +294,20 @@ class LagouSpider:
                 address_list = business_json['addressList'][1]
                 business_location = \
                     address_list['province'] + address_list['city'] + address_list['district']
-            except KeyError:
+            except (IndexError, KeyError):
                 business_location = ""
 
         # 公司网站主页
         business_website = business_json['coreInfo']['companyUrl']
 
         # 公司介绍
-        business_info = business_json['introduction']['companyProfile']
-        business_info = \
-            self.filter_html_tag(content=business_info).replace("\n", "").replace("&nbsp;", "")
+        try:
+            business_info = business_json['introduction']['companyProfile']
+            business_info = \
+                filter_html_tag(content=business_info).replace("\n", "").replace("&nbsp;", "")
+        except KeyError:
+            business_info = ""
 
         # 返回
         result = [business_website, business_location, business_info]
-        print(result)
         return result
-
-    @staticmethod
-    def filter_html_tag(content: str) -> str:
-        """
-        过滤文字中的HTML标签
-        :param content:
-        :return:
-        """
-        pattern = re.compile(r'<[^>]+>', re.S)
-        return pattern.sub('', content)
-
-    @staticmethod
-    def get_value(data) -> str:
-        """
-        判断是否为空
-        :param data:
-        :return:
-        """
-        return data if data else ''

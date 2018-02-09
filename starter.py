@@ -58,10 +58,12 @@ class Starter:
         :param end: 页面结束页
         :return:
         """
-        if start == 0 or start < 0:
+        if start < 0:
             logger.error("Page num of start is error!")
             sys.exit(1)
         else:
+            if start == 0:
+                start += 1
             logger.info("起始页: %d; 结束页: %d" % (start, end))
             self._lagou.parse(page_start=start,
                               page_end=end)
@@ -69,6 +71,7 @@ class Starter:
 
 if __name__ == '__main__':
     s = Starter(keyword="大数据",
-                login_username="18666270636",
-                login_password="379978424")
-
+                login_username="",
+                login_password="")
+    # 测试到222页面 --- 2018.02.08
+    s.start(start=0, end=222)
